@@ -111,7 +111,7 @@ img, svg { display: block; max-width: 100%; }
 .stack-8 > * + * { margin-top: 8px; }
 .stack-16 > * + * { margin-top: 16px; }
 .stack-24 > * + * { margin-top: 24px; }
-.grid-home { display: grid; grid-template-columns: minmax(0, 1fr) minmax(360px, 440px); gap: 48px; align-items: start; }
+.grid-home { display: grid; grid-template-columns: minmax(0, 1fr) minmax(360px, 520px); gap: 48px; align-items: start; }
 .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
 .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
 .split { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 48px; align-items: start; }
@@ -145,6 +145,8 @@ img, svg { display: block; max-width: 100%; }
 .nav-end { display: flex; align-items: center; gap: 16px; }
 .daychip { font: 400 13px/1 var(--mono); color: #bdbdbd; letter-spacing: 0.03em; }
 .avatar { width: 32px; height: 32px; display: grid; place-items: center; background: var(--paper); color: var(--obsidian) !important; text-decoration: none !important; font: 600 14px/1 var(--sans); }
+.avatar { position: relative; }
+.avatar::before { content: ''; position: absolute; inset: -6px; }
 .avatar:hover, .avatar[aria-current='page'] { outline: 2px solid var(--paper); outline-offset: 3px; }
 .stepchip { margin-left: auto; font: 400 13px/1 var(--mono); color: #bdbdbd; letter-spacing: 0.03em; }
 .menu-btn { display: none; margin-left: auto; background: none; border: 0; color: var(--paper); font: 600 16px/1 var(--sans); letter-spacing: 0.03em; padding: 0 4px; min-height: 44px; min-width: 44px; cursor: pointer; }
@@ -500,6 +502,12 @@ select.input, .datechip { appearance: auto; }
 .wt-notes .marker, .wt-screen .marker { width: 28px; height: 28px; font-size: 14px; }
 .wt-narr.opener .wt-notes .marker { background: var(--paper); color: var(--ink); }
 .wt-screen .pin { position: absolute; z-index: 3; }
+.wt-receipt { grid-template-columns: 2fr 3fr !important; }
+.wt-timeline { grid-template-columns: 1fr 1fr !important; }
+.wt-screen .rrow { grid-template-columns: 40px minmax(0, 1fr) auto auto; gap: 10px; }
+.wt-screen .rrow .s, .wt-screen .rrow > :last-child:not(.blocks) { display: none; }
+.wt-receipt .sheet-band { padding: 0 20px; }
+.wt-receipt .sheet-body { padding: 20px; }
 .wt-foot { position: fixed; left: 0; right: 0; bottom: 0; background: var(--paper); border-top: 1px solid var(--ink); z-index: 10; }
 .wt-foot .wrap { display: grid; grid-template-columns: auto 1fr auto; gap: 24px; align-items: center; padding-top: 14px; padding-bottom: 14px; }
 .wt-prog { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
@@ -526,7 +534,8 @@ select.input, .datechip { appearance: auto; }
 /* ---------- 900–1199 ---------- */
 @media (max-width: 1199px) {
   :root { --pad: 32px; }
-  .grid-home { grid-template-columns: minmax(0, 1fr) 360px; gap: 32px; }
+  .grid-home { grid-template-columns: minmax(0, 1fr) 440px; gap: 32px; }
+  .grid-home .rrow .s { display: none; }
   .ngrid { grid-template-columns: repeat(3, 1fr); }
   .nav a { padding: 0 8px; }
   .nav a::after { left: 8px; right: 8px; }
@@ -583,6 +592,8 @@ select.input, .datechip { appearance: auto; }
   .rrow { grid-template-columns: 40px minmax(0, 1fr) auto 16px; gap: 10px; }
   .rrow .blocks { display: none; }
   .wt-screen { padding: 14px; min-height: 0; }
+  .wt-receipt, .wt-timeline { grid-template-columns: 1fr !important; }
+  .wt-screen .pin { display: none; }
   .wt-narr.opener { padding: 24px 20px; }
   .wt-foot .wrap { grid-template-columns: auto 1fr auto; gap: 12px; }
   .wt-tabs a { font-size: 14px; }

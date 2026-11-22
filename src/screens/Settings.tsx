@@ -100,13 +100,14 @@ export function Settings() {
   };
 
   return (
-    <main className="page" style={{ maxWidth: 1040 }}>
-      <h1>Settings and privacy.</h1>
+    <main className="page">
+      <h1>Settings and privacy</h1>
       <p className="lede">Your numbers live on this device. Here’s what’s stored and how to change it.</p>
       <div className="split" style={{ marginTop: 32 }}>
         <div className="stack-24">
-          <section className="card" aria-labelledby="s-data">
+          <section aria-labelledby="s-data">
             <h2 id="s-data">Data</h2>
+            <div className="list" style={{ marginTop: 12 }}>
             <div className="srow">
               <div>
                 <b>Daily check-ins</b>
@@ -114,7 +115,7 @@ export function Settings() {
                   {p.paused ? 'Paused' : 'On'} · {checkinCount} saved
                 </span>
               </div>
-              <Link to="/check-in" className="btn small ghost">
+              <Link to="/check-in" className="btn small outline">
                 Check in
               </Link>
             </div>
@@ -123,7 +124,7 @@ export function Settings() {
                 <b>Exports</b>
                 <span>{exportsText}</span>
               </div>
-              <Link to="/settings/data" className="btn small ghost">
+              <Link to="/settings/data" className="btn small outline">
                 Manage
               </Link>
             </div>
@@ -132,20 +133,22 @@ export function Settings() {
                 <b>Your normal</b>
                 <span>Set on day 1 · Used to score every measure</span>
               </div>
-              <Link to="/start/normal?edit=1" className="btn small ghost">
+              <Link to="/start/normal?edit=1" className="btn small outline">
                 Edit
               </Link>
             </div>
+            </div>
           </section>
 
-          <section className="card" aria-labelledby="s-rem">
+          <section aria-labelledby="s-rem">
             <h2 id="s-rem">Reminders and streets</h2>
+            <div className="list" style={{ marginTop: 12 }}>
             <div className="srow">
               <div>
                 <b>Daily reminder</b>
                 <span>{reminderText}</span>
               </div>
-              <button type="button" className="btn small ghost" onClick={() => setEditReminder((v) => !v)} aria-expanded={editReminder}>
+              <button type="button" className="btn small outline" onClick={() => setEditReminder((v) => !v)} aria-expanded={editReminder}>
                 {editReminder ? 'Done' : 'Change'}
               </button>
             </div>
@@ -181,7 +184,7 @@ export function Settings() {
                     >
                       Add a daily reminder to my calendar
                     </button>
-                    <p className="caption">To stop a calendar reminder, delete the event in your calendar app.</p>
+                    <p className="muted">To stop a calendar reminder, delete the event in your calendar app.</p>
                   </>
                 )}
               </div>
@@ -198,12 +201,12 @@ export function Settings() {
                       <button type="button" className="btn small danger" onClick={leave}>
                         Leave street
                       </button>
-                      <button type="button" className="btn small ghost" onClick={() => setConfirmLeave(false)}>
+                      <button type="button" className="btn small outline" onClick={() => setConfirmLeave(false)}>
                         Stay
                       </button>
                     </span>
                   ) : (
-                    <button type="button" className="btn small ghost" onClick={() => setConfirmLeave(true)}>
+                    <button type="button" className="btn small outline" onClick={() => setConfirmLeave(true)}>
                       Leave street
                     </button>
                   )}
@@ -214,7 +217,7 @@ export function Settings() {
                     <b>Cul-de-sac</b>
                     <span>Not on a street</span>
                   </div>
-                  <Link to="/cul-de-sac/new" className="btn small ghost">
+                  <Link to="/cul-de-sac/new" className="btn small outline">
                     Start one
                   </Link>
                 </>
@@ -227,19 +230,20 @@ export function Settings() {
               </div>
               <Switch checked={p.paused} label="Pause my garden" onChange={(v) => run(() => g.actions.updateProfile({ paused: v, pausedOn: v ? g.today : undefined }), v ? 'Garden paused. It stays as it is until you’re back.' : 'Welcome back. Your garden is growing again.')} />
             </div>
+            </div>
           </section>
 
           {g.research && (
-            <section className="card" aria-labelledby="s-research">
+            <section className="info-panel" aria-labelledby="s-research">
               <h2 id="s-research">Research mode</h2>
-              <p className="caption" style={{ marginTop: 6 }}>
+              <p className="muted" style={{ marginTop: 6 }}>
                 Check-ins and receipt views are logged on this device. Nothing is sent automatically.
               </p>
               <div className="btnrow" style={{ marginTop: 12 }}>
                 <button type="button" className="btn small" onClick={copyStudyLog}>
                   Copy study log as CSV
                 </button>
-                <button type="button" className="btn small ghost" onClick={() => run(() => g.actions.setResearch(false), 'Research mode is off.')}>
+                <button type="button" className="btn small outline" onClick={() => run(() => g.actions.setResearch(false), 'Research mode is off.')}>
                   Turn off research mode
                 </button>
               </div>
@@ -248,38 +252,38 @@ export function Settings() {
         </div>
 
         <div className="stack-24">
-          <section className="ok-panel" style={{ padding: 22 }} aria-labelledby="s-priv">
-            <h2 id="s-priv" className="ok-title" style={{ fontSize: 17 }}>
-              <span aria-hidden="true">🔒</span> Your numbers stay on this device
+          <section className="ok-panel" style={{ padding: 28 }} aria-labelledby="s-priv">
+            <h2 id="s-priv" className="heading-s">
+              Your numbers never leave this device; streets share pictures only, never numbers.
             </h2>
-            <p style={{ marginTop: 8 }}>Check-ins and files never leave this browser. If you join a street, only your garden picture (how many of each prop) is shared.</p>
+            <p style={{ marginTop: 12 }}>Check-ins and files stay in this browser. If you join a street, only your garden picture is shared: how many of each prop, never the numbers.</p>
           </section>
-          <section className="card" aria-labelledby="s-dl">
+          <section aria-labelledby="s-dl">
             <h2 id="s-dl">Download my data</h2>
             <p className="muted" style={{ marginTop: 6 }}>
               Download a copy of every check-in as a spreadsheet file.
             </p>
-            <button type="button" className="btn secondary" style={{ marginTop: 14 }} onClick={downloadData} disabled={!checkinCount}>
+            <button type="button" className="btn outline" style={{ marginTop: 14 }} onClick={downloadData} disabled={!checkinCount}>
               Download my data
             </button>
           </section>
-          <section className="card" style={{ borderColor: '#f3c2bc' }} aria-labelledby="s-del">
+          <section className="danger-zone" aria-labelledby="s-del">
             <h2 id="s-del">Delete my garden</h2>
             <p className="muted" style={{ marginTop: 6 }}>
               Removes every check-in, file and setting from this device and takes you off any street. This can’t be undone.
             </p>
-            <label className="field" htmlFor="del-name" style={{ marginTop: 14, fontSize: 14 }}>
+            <label className="field" htmlFor="del-name" style={{ marginTop: 14 }}>
               Type <span style={{ userSelect: 'all' }}>{p.gardenName}</span> to confirm
             </label>
             <input id="del-name" className="input" style={{ marginTop: 6 }} value={confirmName} onChange={(e) => setConfirmName(e.target.value)} autoComplete="off" />
             <button type="button" className="btn danger" style={{ marginTop: 12 }} disabled={confirmName.trim() !== p.gardenName.trim() || deleting} onClick={del}>
               Delete my garden
             </button>
-            <p className="caption" style={{ marginTop: 6 }}>
+            <p className="muted" style={{ marginTop: 6 }}>
               You’ll be asked to type the garden’s name to confirm.
             </p>
           </section>
-          <p className="caption">
+          <p className="caption mono">
             Planted {prettyDate(localDate(p.createdAt))} · day {daysBetween(localDate(p.createdAt), g.today) + 1}
           </p>
         </div>

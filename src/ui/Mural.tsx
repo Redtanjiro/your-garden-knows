@@ -127,7 +127,7 @@ export function Mural({ levels, height, seed = 7, animate = true, className = ''
   for (const s of shapes) seen.current.add(s.key);
   return (
     <div className={'mural ' + className} style={height ? { height } : undefined} aria-hidden="true">
-      <svg viewBox={`0 0 ${MURAL_W} 280`} preserveAspectRatio="xMidYMid slice" focusable="false">
+      <svg viewBox={`0 0 ${MURAL_W} 280`} preserveAspectRatio="xMidYMax slice" focusable="false">
         {shapes.map((s) => (
           <g key={s.key} className={fresh.has(s.key) ? 'ms-in' : 'ms'}>
             <g className="ms" style={s.scale ? { transform: `scale(${s.scale})`, transformBox: 'fill-box', transformOrigin: 'center bottom' } : undefined}>

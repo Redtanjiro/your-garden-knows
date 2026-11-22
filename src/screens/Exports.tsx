@@ -43,7 +43,7 @@ function DropZone({ id, label, accept, onFile }: { id: string; label: string; ac
 
 function SourceCard({ title, status, children }: { title: string; status: Status; children: ReactNode }) {
   return (
-    <section className="card stack-16" aria-label={title}>
+    <section className="card stack-16" aria-label={title} style={{ borderColor: 'var(--ink)' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
         <h2>{title}</h2>
         {status === 'read' ? <span className="badge ok">Read</span> : status === 'error' ? <span className="badge err">Not read</span> : <span className="badge muted">Not added</span>}
@@ -168,15 +168,15 @@ export function Exports() {
 
   return (
     <main className="page">
-      <p className="caption">
+      <p className="muted">
         <Link to="/settings">Settings</Link> / Data sources
       </p>
-      <h1 style={{ marginTop: 8 }}>Bring your exports.</h1>
+      <h1 style={{ marginTop: 8 }}>Bring your exports</h1>
       <p className="lede">Files are read on this device. Nothing is uploaded. Anything missing comes from your check-ins.</p>
       <div className="grid-home" style={{ marginTop: 32 }}>
         <div className="stack-16">
           <SourceCard title="WhatsApp group chat" status={waStatus}>
-            <p className="caption">In the chat: ⋮ or the chat name → Export chat → Without media. A .txt file, or the .zip from iPhone.</p>
+            <p className="muted">In the chat: ⋮ or the chat name → Export chat → Without media. A .txt file, or the .zip from iPhone.</p>
             {waErr && (
               <p className="err-panel" role="alert">
                 {waErr}
@@ -199,7 +199,7 @@ export function Exports() {
                     ))}
                   </select>
                 </div>
-                <p className="caption">
+                <p className="muted">
                   From {wa.me}: {waRes.mine} messages · link-only {waRes.totals.head} · chain-style {waRes.totals.fwd} · 😂 {waRes.totals.laughs} · since you last spoke {waRes.totals.seen}
                 </p>
                 {waRes.futureDates || wa.order === 'mdy' ? (
@@ -219,7 +219,7 @@ export function Exports() {
           </SourceCard>
 
           <SourceCard title="TikTok or Instagram watch history" status={vidStatus}>
-            <p className="caption">TikTok: Settings → Account → Download your data (JSON or TXT). Instagram: Accounts Centre → Download your information (JSON, includes videos watched).</p>
+            <p className="muted">TikTok: Settings → Account → Download your data (JSON or TXT). Instagram: Accounts Centre → Download your information (JSON, includes videos watched).</p>
             {vidErr && (
               <p className="err-panel" role="alert">
                 {vidErr}
@@ -237,7 +237,7 @@ export function Exports() {
               )
             )}
             <DropZone id="f-vid" label={vidErr ? 'Choose another file' : 'Drop user_data_tiktok.json, Watch History.txt or videos_watched.json'} accept=".json,.txt,.zip" onFile={onVid} />
-            <p className="caption">
+            <p className="muted">
               <a href="https://support.tiktok.com/en/account-and-privacy/personalized-ads-and-data/requesting-your-data" target="_blank" rel="noreferrer">
                 How to download your TikTok data
               </a>
@@ -256,14 +256,14 @@ export function Exports() {
               Update my garden
             </button>
             {first && (
-              <Link to="/garden?first=1" className="btn ghost">
+              <Link to="/garden?first=1" className="btn outline">
                 Skip for now
               </Link>
             )}
           </div>
-          <p className="caption">{canUpdate ? (vidStatus !== 'read' ? 'You can update with what’s here and add watch history later.' : waStatus !== 'read' ? 'You can update with what’s here and add WhatsApp later.' : 'Both sources are read.') : 'Add at least one file to update your garden.'}</p>
+          <p className="muted">{canUpdate ? (vidStatus !== 'read' ? 'You can update with what’s here and add watch history later.' : waStatus !== 'read' ? 'You can update with what’s here and add WhatsApp later.' : 'Both sources are read.') : 'Add at least one file to update your garden.'}</p>
         </div>
-        <aside className="panel stack-16" aria-label="Where each measure comes from">
+        <aside className="panel stack-16" style={{ background: 'var(--mint)', borderColor: 'var(--mint)' }} aria-label="Where each measure comes from">
           <h2>Where each measure comes from</h2>
           <ul className="srclist">
             {KEYS.map((k) => (
@@ -273,7 +273,7 @@ export function Exports() {
               </li>
             ))}
           </ul>
-          <p className="caption">Exports replace your check-in numbers for the days they cover. Newer check-ins always win.</p>
+          <p className="muted">Exports replace your check-in numbers for the days they cover. Newer check-ins always win.</p>
         </aside>
       </div>
     </main>

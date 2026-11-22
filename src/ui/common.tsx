@@ -210,6 +210,7 @@ export function SliderField(props: {
   step: number;
   unit?: string;
   sliderMax?: number;
+  disabled?: boolean;
   onChange: (v: number) => void;
 }) {
   const id = useId();
@@ -240,6 +241,7 @@ export function SliderField(props: {
           value={Math.min(value, sMax)}
           aria-labelledby={id + 'l'}
           aria-describedby={id + 'h'}
+          disabled={props.disabled}
           aria-valuetext={`${value}${props.unit ? ' ' + props.unit : ''}`}
           onChange={(e) => onChange(Number(e.target.value))}
         />
@@ -252,6 +254,7 @@ export function SliderField(props: {
           max={max}
           step={step}
           value={text}
+          disabled={props.disabled}
           aria-labelledby={id + 'l'}
           onChange={(e) => {
             setText(e.target.value);
