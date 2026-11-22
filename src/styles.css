@@ -349,3 +349,76 @@ input[type='range'] { width: 100%; accent-color: var(--action); height: 24px; cu
 .onb-page { padding-bottom: 120px; }
 .welcome-nav { display: flex; }
 @media (max-width: 900px) { .welcome-nav { display: none; } .topbar-in > .btn { margin-left: auto; } }
+
+/* ---------- Wayfinder theme for the tracker (redesign) ----------
+   Same system as the game: black stage, thin wide-tracked Jost, 0 radius,
+   no shadows. The garden illustration keeps its colour; the interface doesn't. */
+:root {
+  --paper: #000000;
+  --panel: #0b0502;
+  --warm: #1a1a1a;
+  --rule: rgba(227, 227, 226, 0.22);
+  --rule-a: rgba(227, 227, 226, 0.22);
+  --ink: #ffffff;
+  --text: #e3e3e2;
+  --muted: rgba(255, 255, 255, 0.6);
+  --action: #ffffff;
+  --action-pale: #1a1a1a;
+  --action-deep: #ffffff;
+  --ok: #8fd6a2;
+  --ok-bg: rgba(143, 214, 162, 0.1);
+  --err: #ff9a8a;
+  --err-bg: rgba(255, 154, 138, 0.1);
+  --grow: #ffd27a;
+  --tier-bg: #1a1a1a;
+  --shadow: none;
+  --lift: none;
+  --sans: 'Jost', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --serif: 'Jost', ui-sans-serif, system-ui, sans-serif;
+  color-scheme: dark;
+}
+body { letter-spacing: 0.042em; font-weight: 400; }
+*, *::before, *::after { border-radius: 0 !important; box-shadow: none !important; }
+h1 { font-weight: 300; text-transform: uppercase; letter-spacing: 0.06em; }
+h2, h3 { font-weight: 400; letter-spacing: 0.04em; }
+a { color: #fff; text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; }
+:focus-visible { outline-color: #fff; outline-width: 1px; outline-offset: 3px; }
+.btn { background: #fff; color: #000; border: 1px solid #fff; font-weight: 400; min-height: 44px; letter-spacing: 0.042em; text-decoration: none; }
+.btn:hover { background: #e3e3e2; }
+.btn.secondary, .btn.ghost { background: #1a1a1a; color: #fff; border: 1px solid #e3e3e2; }
+.btn.secondary:hover, .btn.ghost:hover { background: #262626; }
+.btn.danger { background: var(--err); color: #000; }
+.btn[disabled], .btn[aria-disabled='true'] { background: #1a1a1a; color: rgba(255, 255, 255, 0.35); border-color: rgba(227, 227, 226, 0.2); }
+.tier.Unruly, .tier.Feral { background: #1a1a1a; color: #ffd27a; }
+.bubble { filter: none; color: #0d0d0d; }
+.bubble.white { background: #1a1a1a; color: #fff; }
+.bubble.white.tail::before { border-top-color: #1a1a1a; }
+.bubble .sender { color: #0d0d0d; }
+.input { background: #0b0502; color: #fff; border-color: var(--rule); }
+.focus-ring { filter: none; stroke-dasharray: 6 5; stroke-width: 2; }
+.tip { background: #000; border: 1px solid var(--rule); }
+.rrow, .radiocard, .drop, .sheet, .lot .nm, .nameplate, .callout, .tabbar { background: #000; color: var(--text); }
+.rrow:hover { background: #0b0502; border-color: rgba(227, 227, 226, 0.5); }
+.radiocard:has(input:checked) { background: #0b0502; border-color: #fff; }
+.normal-line span { background: #000; }
+.sheet { border-left: 1px solid var(--rule); }
+.toast { background: #fff; color: #000; }
+.switch::after { background: #000; }
+.radiodot, .ticks li span[aria-hidden] { border-color: rgba(227, 227, 226, 0.5); }
+.paper { border: 1px solid var(--rule); }
+.topbar { background: #000; }
+.nav a { color: var(--text); text-decoration: none; }
+.nav a:hover, .nav a.active { background: #1a1a1a; }
+.avatar { background: #1a1a1a; color: #fff; text-decoration: none; }
+.banner { border-bottom: 1px solid var(--rule); }
+.brand { color: #fff; text-decoration: none; text-transform: uppercase; font-weight: 400; letter-spacing: 0.08em; font-size: 14px; }
+.companion { filter: invert(1); }
+input[type='range'] { accent-color: #fff; }
+h1, .display, .title-xl, .bigval { font-weight: 300 !important; letter-spacing: 0.05em !important; }
+.display { text-transform: uppercase; }
+h2, h3 { font-weight: 400 !important; }
+.barcol i { background: rgba(255, 255, 255, 0.3); }
+.barcol i.now { background: #fff; }
+.normal-line { border-top-color: rgba(255, 255, 255, 0.6); }
+.bar { background: rgba(255, 255, 255, 0.15); }
+.hl { color: #0d0d0d; }

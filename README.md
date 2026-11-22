@@ -34,11 +34,12 @@ npm run build
 
 | Area | Files |
 | --- | --- |
+| The game (Wayfinder redesign, `/` and `play.html`) | `src/game/` · `content.ts` (the 12 buzzes), `state.ts` (logic, uses the real engine), `Game.tsx`, `Street.tsx`, `game.css` · tests in `state.test.ts` |
 | Metric engine (section 5) | `src/engine/metrics.ts`, `stories.ts`, `meta.ts` · tests in `metrics.test.ts` |
 | Garden renderer (port of `drawGarden`) | `src/garden/draw.ts`, `Garden.tsx` |
 | Export parsers (section 6) | `src/parsers/whatsapp.ts`, `video.ts` · tests in `parsers.test.ts` |
 | Storage | `src/data/db.ts`, `store.tsx`; read-only example garden in `demo.tsx` |
-| Screens 1–15 | `src/screens/` |
+| Screens 1–15 (tracker, now at `/tracker`, Wayfinder theme at the end of `styles.css`) | `src/screens/` |
 | Cul-de-sac client (section 9) | `src/street/api.ts` |
 
 ## The cul-de-sac service

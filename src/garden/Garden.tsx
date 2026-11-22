@@ -32,7 +32,7 @@ export function gardenSummary(name: string, l: Levels): string {
 }
 
 /** Items present on first render stay still; items that appear later animate in (600 ms). */
-const Items = memo(function Items({ items }: { items: Item[] }) {
+export const Items = memo(function Items({ items }: { items: Item[] }) {
   const seen = useRef<Map<string, boolean> | null>(null);
   if (!seen.current) seen.current = new Map(items.map((i) => [i.k, false]));
   const map = seen.current;

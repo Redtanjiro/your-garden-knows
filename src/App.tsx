@@ -6,6 +6,7 @@ import { useGarden } from './data/store';
 import { daysBetween, localDate } from './engine/dates';
 import { BrandMark } from './ui/common';
 import { Welcome } from './screens/Welcome';
+import { Game } from './game/Game';
 import { HowItWorks, ChooseData, SetNormal, NameGarden } from './screens/Onboarding';
 import { GardenHome } from './screens/Home';
 import { CheckInScreen } from './screens/CheckIn';
@@ -162,7 +163,8 @@ export function App() {
       <ScrollTop />
       <StorageBanner />
       <Routes>
-        <Route path="/" element={<Welcome />} />
+        <Route path="/" element={<Game trackerHref={import.meta.env.BASE_URL + 'tracker'} />} />
+        <Route path="/tracker" element={<Welcome />} />
         <Route element={<PlainShell />}>
           <Route path="/start" element={<HowItWorks />} />
           <Route path="/start/data" element={<ChooseData />} />

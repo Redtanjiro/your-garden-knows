@@ -5,5 +5,6 @@ import react from '@vitejs/plugin-react';
 export default defineConfig({
   base: process.env.BASE_PATH || '/',
   plugins: [react()],
+  build: { rollupOptions: { input: { main: 'index.html', play: 'play.html' } } },
   test: { environment: 'node' },
 } as any);

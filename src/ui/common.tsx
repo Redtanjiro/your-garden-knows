@@ -141,7 +141,7 @@ export function BrandMark() {
 export function Companion({ pose = 'stand', size = 90 }: { pose?: 'stand' | 'peek' | 'wave'; size?: number }) {
   if (pose === 'peek')
     return (
-      <svg viewBox="0 0 80 34" width={size} aria-hidden="true">
+      <svg className="companion" viewBox="0 0 80 34" width={size} aria-hidden="true">
         <path d="M14 32c0-14 10-24 26-24s26 10 26 24" fill="#fff" stroke="#0d0d0d" strokeWidth="2" />
         <path d="M14 22c4-12 16-16 26-16s22 4 26 16c-8-6-16-8-26-8s-18 2-26 8z" fill="#0d0d0d" />
         <circle cx="32" cy="24" r="2" fill="#0d0d0d" />
@@ -150,7 +150,7 @@ export function Companion({ pose = 'stand', size = 90 }: { pose?: 'stand' | 'pee
       </svg>
     );
   return (
-    <svg viewBox="0 0 60 120" width={size * 0.5} aria-hidden="true">
+    <svg className="companion" viewBox="0 0 60 120" width={size * 0.5} aria-hidden="true">
       <circle cx="30" cy="18" r="12" fill="#fff" stroke="#0d0d0d" strokeWidth="2" />
       <path d="M18 15c1-8 6-11 12-11s11 3 12 11c-4-3-8-4-12-4s-8 1-12 4z" fill="#0d0d0d" />
       <circle cx="26" cy="20" r="1.5" fill="#0d0d0d" />
