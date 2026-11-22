@@ -71,7 +71,7 @@ export function HowItWorks() {
     ['Every weed has a receipt', 'Click anything in the garden to see the number behind it, how it’s worked out and how to tidy it.'],
   ];
   return (
-    <Step n={1} title="Here’s how your garden grows." lede="Three things to know before you plant. It takes about four minutes to set up." back={() => nav('/')} next={() => nav('/start/data')}>
+    <Step n={1} title="Here’s how your garden grows." lede="Three things to know before you plant. It takes about four minutes to set up." back={() => nav('/tracker')} next={() => nav('/start/data')}>
       <div className="split">
         <ol className="stack-24" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
           {points.map(([t, b], i) => (

@@ -32,7 +32,7 @@ function Topbar({ withNav }: { withNav: boolean }) {
   return (
     <header className="topbar">
       <div className="topbar-in">
-        <Link to={withNav && !readOnly ? '/garden' : '/'} className="brand">
+        <Link to={withNav && !readOnly ? '/garden' : '/tracker'} className="brand">
           <BrandMark /> Your Garden Knows
         </Link>
         {withNav && (
@@ -102,7 +102,7 @@ function AppShell() {
     return () => document.body.classList.remove('has-tabbar');
   }, []);
   if (!ready) return null;
-  if (!profile) return <Navigate to="/" replace />;
+  if (!profile) return <Navigate to="/tracker" replace />;
   return (
     <>
       <Topbar withNav />

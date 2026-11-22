@@ -91,7 +91,7 @@ export function Settings() {
     setDeleting(true);
     try {
       await g.actions.deleteEverything();
-      nav('/', { replace: true });
+      nav('/tracker', { replace: true });
       toast('Your garden is deleted from this device.');
     } catch (e) {
       toast((e as Error).message, true);

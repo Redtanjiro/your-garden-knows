@@ -20,7 +20,7 @@ export function Welcome() {
     <>
       <header className="topbar">
         <div className="topbar-in">
-          <Link to="/" className="brand">
+          <Link to="/tracker" className="brand">
             <BrandMark /> Your Garden Knows
           </Link>
           <nav className="nav welcome-nav" aria-label="Main">
