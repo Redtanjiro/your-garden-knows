@@ -1,10 +1,11 @@
-import { useEffect, type ReactNode } from 'react';
-import { Link, Navigate, NavLink, Outlet, Route, Routes, useLocation } from 'react-router-dom';
+import { useEffect, useRef, type ReactNode } from 'react';
+import { Link, Navigate, NavLink, Outlet, Route, Routes, useLocation, useSearchParams } from 'react-router-dom';
 import { DemoProvider } from './data/demo';
 import { STORAGE_BLOCKED } from './data/db';
 import { useGarden } from './data/store';
 import { daysBetween, localDate } from './engine/dates';
-import { BrandMark } from './ui/common';
+import { Brand, PublicTopbar } from './ui/topbar';
+import { Mural } from './ui/Mural';
 import { Welcome } from './screens/Welcome';
 import { Game } from './game/Game';
 import { HowItWorks, ChooseData, SetNormal, NameGarden } from './screens/Onboarding';
@@ -15,46 +16,57 @@ import { Exports } from './screens/Exports';
 import { Report } from './screens/Report';
 import { StreetNew, StreetView, JoinStreet } from './screens/Street';
 import { Settings } from './screens/Settings';
+import { Walkthrough } from './screens/Walkthrough';
 
-const NAV = [
+export const NAV = [
   { to: '/garden', label: 'Garden', icon: 'M4 20h16M7 20v-6m5 6V9m5 11v-4M12 9c-3 0-4-3-3-5 3 0 4 2 3 5z' },
   { to: '/check-in', label: 'Check in', icon: 'M5 12l4 4 10-10M4 4h16v16H4z' },
   { to: '/tidy-up', label: 'Tidy up', icon: 'M14 4l6 6-9 9H5v-6zM12 6l6 6' },
-  { to: '/cul-de-sac', label: 'Cul-de-sac', icon: 'M3 11l5-5 5 5v8H3zM13 11l4-4 4 4v8h-8' },
   { to: '/report', label: 'Report', icon: 'M5 20V10M10 20V4M15 20v-7M20 20v-11' },
+  { to: '/cul-de-sac', label: 'Street', icon: 'M3 11l5-5 5 5v8H3zM13 11l4-4 4 4v8h-8' },
 ];
 
-function Topbar({ withNav }: { withNav: boolean }) {
+/* ---------- app top bar: has a profile ---------- */
+function AppTopbar() {
   const { profile, today, readOnly } = useGarden();
   const day = profile ? daysBetween(localDate(profile.createdAt), today) + 1 : 0;
-  const initials = profile?.gardenName.replace(/[’']s\b.*$/, '').split(/\s+/).map((w) => w[0]).join('').slice(0, 2).toUpperCase() || 'YG';
-  const base = readOnly ? '/example' : '';
+  const initial = (profile?.gardenName.trim()[0] ?? 'Y').toUpperCase();
   return (
     <header className="topbar">
       <div className="topbar-in">
-        <Link to={withNav && !readOnly ? '/garden' : '/tracker'} className="brand">
-          <BrandMark /> Your Garden Knows
-        </Link>
-        {withNav && (
-          <>
-            <nav className="nav" aria-label="Main">
-              {NAV.map((n) =>
-                readOnly && n.to !== '/garden' ? null : (
-                  <NavLink key={n.to} to={base + n.to} end={n.to === '/garden' && !readOnly}>
-                    {n.label}
-                  </NavLink>
-                ),
-              )}
-            </nav>
-            <div className="nav-end">
-              {profile && <span className="daychip">Day {day}</span>}
-              {!readOnly && (
-                <Link to="/settings" className="avatar" aria-label="Settings and privacy">
-                  {initials}
-                </Link>
-              )}
-            </div>
-          </>
+        <Brand to={readOnly ? '/' : '/garden'} />
+        <nav className="nav" aria-label="Main">
+          {NAV.map((n) => (
+            <NavLink key={n.to} to={n.to} end={n.to === '/garden' ? false : undefined}>
+              {n.label}
+            </NavLink>
+          ))}
+        </nav>
+        <div className="nav-end">
+          {profile && <span className="daychip">Day {day}</span>}
+          <NavLink to="/settings" className="avatar" aria-label="Settings and privacy">
+            {initial}
+          </NavLink>
+        </div>
+      </div>
+    </header>
+  );
+}
+
+function OnboardingTopbar() {
+  const { pathname } = useLocation();
+  const [params] = useSearchParams();
+  const n = { '/start': 1, '/start/data': 2, '/start/normal': 3, '/start/name': 4 }[pathname];
+  const editing = params.get('edit') === '1';
+  return (
+    <header className="topbar">
+      <div className="topbar-in">
+        <Brand to="/" />
+        {n && !editing && <span className="stepchip">Step {n} of 4</span>}
+        {editing && (
+          <Link to="/settings" className="btn on-dark small" style={{ marginLeft: 'auto' }}>
+            Back to settings
+          </Link>
         )}
       </div>
     </header>
@@ -67,7 +79,7 @@ function TabBar() {
       {NAV.map((n) => (
         <NavLink key={n.to} to={n.to}>
           <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d={n.icon} stroke="currentColor" strokeWidth="1.8" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+            <path d={n.icon} stroke="currentColor" strokeWidth="1.6" fill="none" strokeLinecap="square" strokeLinejoin="miter" />
           </svg>
           {n.label}
         </NavLink>
@@ -88,7 +100,7 @@ function ReminderBanner() {
   return (
     <div className="banner" role="status">
       Your garden is waiting. Two minutes to check in?
-      <Link className="btn small" to="/check-in">
+      <Link className="btn on-dark small" to="/check-in">
         Check in
       </Link>
     </div>
@@ -96,29 +108,43 @@ function ReminderBanner() {
 }
 
 function AppShell() {
-  const { ready, profile } = useGarden();
+  const { ready, profile, levels } = useGarden();
+  const [params] = useSearchParams();
+  const reveal = params.get('first') === '1';
   useEffect(() => {
     document.body.classList.add('has-tabbar');
     return () => document.body.classList.remove('has-tabbar');
   }, []);
   if (!ready) return null;
-  if (!profile) return <Navigate to="/tracker" replace />;
+  if (!profile) return <Navigate to="/" replace />;
   return (
     <>
-      <Topbar withNav />
+      <AppTopbar />
       <ReminderBanner />
+      {!reveal && <Mural levels={levels} height={72} className="mural-strip" />}
       <Outlet />
       <TabBar />
     </>
   );
 }
 
-function PlainShell({ children }: { children?: ReactNode }) {
+function OnboardingShell() {
   const { ready } = useGarden();
   if (!ready) return null;
   return (
     <>
-      <Topbar withNav={false} />
+      <OnboardingTopbar />
+      <Outlet />
+    </>
+  );
+}
+
+function PublicShell({ children }: { children?: ReactNode }) {
+  const { ready } = useGarden();
+  if (!ready) return null;
+  return (
+    <>
+      <PublicTopbar />
       {children ?? <Outlet />}
     </>
   );
@@ -127,12 +153,13 @@ function PlainShell({ children }: { children?: ReactNode }) {
 function ExampleShell() {
   return (
     <DemoProvider>
-      <Topbar withNav />
+      <PublicTopbar />
       <div className="banner" role="note">
-        This is an example garden with sample numbers. Nothing here is saved.
-        <Link className="btn small" to="/start">
-          Plant my garden
+        You’re looking at an example garden. Nothing here is saved.
+        <Link className="btn on-dark small" to="/start">
+          Plant my own
         </Link>
+        <Link to="/walkthrough">Or walk through how it works</Link>
       </div>
       <Outlet />
     </DemoProvider>
@@ -149,27 +176,73 @@ function StorageBanner() {
   );
 }
 
-function ScrollTop() {
-  const { pathname } = useLocation();
+/** Scroll to the top (or to a #hash) and move focus to the page heading on route change. */
+function RouteFocus() {
+  const { pathname, hash } = useLocation();
+  const first = useRef(true);
+  const lastBase = useRef('');
   useEffect(() => {
-    if (!/^\/(garden|example)\/[a-z]+/.test(pathname)) window.scrollTo(0, 0);
-  }, [pathname]);
+    const base = pathname.replace(/^\/(garden|example)\/[a-z]+$/, '/$1').replace(/^\/walkthrough\/.*$/, '/walkthrough');
+    const sameBase = base === lastBase.current;
+    lastBase.current = base;
+    if (hash) {
+      const t = setTimeout(() => {
+        const el = document.getElementById(hash.slice(1));
+        if (el) {
+          el.scrollIntoView({ block: 'start' });
+          const h = el.querySelector<HTMLElement>('h2, h1');
+          if (h) {
+            h.tabIndex = -1;
+            h.focus({ preventScroll: true });
+          }
+        }
+      }, 60);
+      return () => clearTimeout(t);
+    }
+    if (sameBase) return;
+    window.scrollTo(0, 0);
+    if (first.current) {
+      first.current = false;
+      return;
+    }
+    const t = setTimeout(() => {
+      const h = document.querySelector<HTMLElement>('.app main h1');
+      if (h && !h.contains(document.activeElement)) {
+        if (!h.hasAttribute('tabindex')) h.tabIndex = -1;
+        h.focus({ preventScroll: true });
+      }
+    }, 60);
+    return () => clearTimeout(t);
+  }, [pathname, hash]);
   return null;
+}
+
+function AppRoot() {
+  return (
+    <div className="app">
+      <RouteFocus />
+      <StorageBanner />
+      <Outlet />
+    </div>
+  );
 }
 
 export function App() {
   return (
-    <>
-      <ScrollTop />
-      <StorageBanner />
-      <Routes>
-        <Route path="/" element={<Game trackerHref={import.meta.env.BASE_URL + 'tracker'} />} />
-        <Route path="/tracker" element={<Welcome />} />
-        <Route element={<PlainShell />}>
+    <Routes>
+      <Route path="/play" element={<Game trackerHref={import.meta.env.BASE_URL} />} />
+      <Route element={<AppRoot />}>
+        <Route path="/" element={<Welcome />} />
+        <Route path="/tracker" element={<Navigate to="/" replace />} />
+        <Route path="/walkthrough" element={<Walkthrough />} />
+        <Route path="/walkthrough/:step" element={<Walkthrough />} />
+        <Route element={<OnboardingShell />}>
           <Route path="/start" element={<HowItWorks />} />
           <Route path="/start/data" element={<ChooseData />} />
           <Route path="/start/normal" element={<SetNormal />} />
           <Route path="/start/name" element={<NameGarden />} />
+        </Route>
+        <Route element={<PublicShell />}>
           <Route path="/join/:code" element={<JoinStreet />} />
         </Route>
         <Route element={<ExampleShell />}>
@@ -190,7 +263,7 @@ export function App() {
           <Route path="/settings/data" element={<Exports />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </>
+      </Route>
+    </Routes>
   );
 }

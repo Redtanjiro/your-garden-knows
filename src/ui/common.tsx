@@ -2,22 +2,27 @@ import { createContext, useCallback, useContext, useEffect, useId, useState, typ
 import type { MetricKey } from '../engine/types';
 
 /* ---------- toasts ---------- */
-interface Toast { id: number; text: string; err?: boolean }
-const ToastCtx = createContext<(text: string, err?: boolean) => void>(() => {});
+interface Toast { id: number; text: string; err?: boolean; band?: boolean }
+const ToastCtx = createContext<(text: string, err?: boolean, band?: boolean) => void>(() => {});
 export const useToast = () => useContext(ToastCtx);
 export function ToastProvider({ children }: { children: ReactNode }) {
   const [list, setList] = useState<Toast[]>([]);
-  const push = useCallback((text: string, err?: boolean) => {
+  const push = useCallback((text: string, err?: boolean, band?: boolean) => {
     const id = Date.now() + Math.random();
-    setList((l) => [...l.slice(-2), { id, text, err }]);
+    setList((l) => [...l.slice(-2), { id, text, err, band }]);
     setTimeout(() => setList((l) => l.filter((t) => t.id !== id)), err ? 6000 : 3500);
   }, []);
   return (
     <ToastCtx.Provider value={push}>
       {children}
       <div className="toasts" role="status" aria-live="polite">
-        {list.map((t) => (
+        {list.filter((t) => !t.band).map((t) => (
           <div key={t.id} className={'toast' + (t.err ? ' err' : '')}>{t.text}</div>
+        ))}
+      </div>
+      <div role="status" aria-live="polite">
+        {list.filter((t) => t.band).slice(-1).map((t) => (
+          <div key={t.id} className="celebrate">{t.text}</div>
         ))}
       </div>
     </ToastCtx.Provider>
@@ -71,7 +76,7 @@ export function Arrow({ dir }: { dir: 'up' | 'down' | 'same' | null }) {
 
 /* ---------- prop icons ---------- */
 export function PropIcon({ k, size = 32 }: { k: MetricKey; size?: number }) {
-  const s = { width: size, height: size };
+  const s = size ? { width: size, height: size } : undefined;
   switch (k) {
     case 'thumb':
       return (
@@ -128,6 +133,30 @@ export function PropIcon({ k, size = 32 }: { k: MetricKey; size?: number }) {
   }
 }
 
+/** A metric-colour tile holding the prop icon as a flat silhouette. Art, never a control. */
+export function MetricTile({ k, size = 40, icon = 0.72, className = '' }: { k: MetricKey; size?: number | string; icon?: number; className?: string }) {
+  const s = typeof size === 'number' ? { width: size, height: size } : undefined;
+  return (
+    <span className={`mt mt-${k} ${className}`} style={s} aria-hidden="true">
+      <PropIcon k={k} size={typeof size === 'number' ? Math.round(size * icon) : 0} />
+    </span>
+  );
+}
+
+/** Monogram: a grass blade cut into an Ink square. */
+export function Monogram({ size = 32, dark = true }: { size?: number; dark?: boolean }) {
+  const bg = dark ? '#ffffff' : '#0f0f0f';
+  const fg = dark ? '#000000' : '#ffffff';
+  return (
+    <svg className="monogram" viewBox="0 0 32 32" width={size} height={size} aria-hidden="true">
+      <rect width="32" height="32" fill={bg} />
+      <rect x="7" y="14" width="4" height="12" fill={fg} />
+      <rect x="14" y="7" width="4" height="19" fill={fg} />
+      <rect x="21" y="11" width="4" height="15" fill={fg} />
+    </svg>
+  );
+}
+
 export function BrandMark() {
   return (
     <svg className="brand-mark" viewBox="0 0 24 24" aria-hidden="true">
@@ -181,6 +210,7 @@ export function SliderField(props: {
   step: number;
   unit?: string;
   sliderMax?: number;
+  disabled?: boolean;
   onChange: (v: number) => void;
 }) {
   const id = useId();
@@ -211,6 +241,7 @@ export function SliderField(props: {
           value={Math.min(value, sMax)}
           aria-labelledby={id + 'l'}
           aria-describedby={id + 'h'}
+          disabled={props.disabled}
           aria-valuetext={`${value}${props.unit ? ' ' + props.unit : ''}`}
           onChange={(e) => onChange(Number(e.target.value))}
         />
@@ -223,6 +254,7 @@ export function SliderField(props: {
           max={max}
           step={step}
           value={text}
+          disabled={props.disabled}
           aria-labelledby={id + 'l'}
           onChange={(e) => {
             setText(e.target.value);

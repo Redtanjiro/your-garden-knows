@@ -34,10 +34,8 @@ export function Consent() {
           </ul>
         </div>
       </div>
-      <p className="ok-panel" style={{ fontSize: 14 }}>
-        Gardens are shown as pictures only. There are no rankings, scores or leaderboards.
-      </p>
-      <p className="caption">Seeds can drift between gardens, so you see how forwards travel through a group. You can hide your garden from the street at any time.</p>
+      <p className="ok-panel">Your numbers never leave this device; streets share pictures only, never numbers. There are no rankings, scores or leaderboards.</p>
+      <p className="muted">Seeds can drift between gardens, so you see how forwards travel through a group. You can hide your garden from the street at any time.</p>
     </aside>
   );
 }
@@ -95,7 +93,7 @@ export function StreetNew() {
                 <div className="ok-title">
                   <span aria-hidden="true">✓</span> {existing.name} is ready
                 </div>
-                <p style={{ marginTop: 4, fontSize: 14 }}>{existing.groupLabel ? `For ${existing.groupLabel}. ` : ''}You can be on one street at a time.</p>
+                <p style={{ marginTop: 4 }}>{existing.groupLabel ? `For ${existing.groupLabel}. ` : ''}You can be on one street at a time.</p>
               </div>
               <InviteBox url={invite} />
               <div className="btnrow">
@@ -122,13 +120,13 @@ export function StreetNew() {
                   Which group is it for?
                 </label>
                 <input id="street-group" className="input" style={{ marginTop: 8, maxWidth: 420 }} value={group} maxLength={40} placeholder="Family chat" onChange={(e) => setGroup(e.target.value)} aria-describedby="group-hint" />
-                <p className="caption" id="group-hint" style={{ marginTop: 6 }}>
+                <p className="muted" id="group-hint" style={{ marginTop: 6 }}>
                   Just a label for you. It stays on this device, and we never read the chat itself.
                 </p>
               </div>
               <div>
                 <p className="field">Invite link</p>
-                <p className="caption" style={{ marginTop: 6 }}>
+                <p className="muted" style={{ marginTop: 6 }}>
                   Appears here once the street is made. Anyone with the link can join, and anyone can leave at any time.
                 </p>
               </div>
@@ -169,11 +167,11 @@ function InviteBox({ url }: { url: string }) {
       </label>
       <div style={{ display: 'flex', gap: 8, marginTop: 8, maxWidth: 520 }}>
         <input id="invite-link" className="input" readOnly value={url} onFocus={(e) => e.target.select()} />
-        <button type="button" className="btn secondary" onClick={copy}>
+        <button type="button" className="btn outline" onClick={copy}>
           Copy link
         </button>
       </div>
-      <p className="caption" style={{ marginTop: 6 }}>
+      <p className="muted" style={{ marginTop: 6 }}>
         Paste it into the group chat. Anyone with the link can join, and anyone can leave at any time.
       </p>
     </div>
@@ -253,7 +251,7 @@ export function StreetView() {
           </button>
           <button
             type="button"
-            className="btn ghost"
+            className="btn outline"
             onClick={async () => {
               await g.actions.setStreet(null);
               nav('/cul-de-sac/new');
@@ -297,55 +295,97 @@ function Street({ view, s, invite, onCopy, onWave, onHide }: { view: SV; s: Stre
   const nameOf = (id: string) => view.members.find((m) => m.memberId === id)?.gardenName ?? 'A neighbour';
   const size = lots.length > 6 ? 17 : 20;
 
+  const neighbours = lots.filter((m) => m.memberId !== s.memberId);
   return (
-    <main className="page">
-      <div className="grid-home">
-        <section>
-          <h1>{view.name}</h1>
-          <p className="muted" style={{ marginTop: 6 }}>
-            {s.groupLabel ? `${s.groupLabel} · ` : ''}you joined {daysBetween(localDate(s.joinedAt), g.today) < 1 ? 'today' : `${daysBetween(localDate(s.joinedAt), g.today)} days ago`} · {members.length} {members.length === 1 ? 'garden' : 'gardens'}
+    <main>
+      <div className="page" style={{ paddingBottom: 32 }}>
+        <h1>{view.name}</h1>
+        <p className="lead muted" style={{ marginTop: 12 }}>
+          {s.groupLabel ? `${s.groupLabel} · ` : ''}you joined {daysBetween(localDate(s.joinedAt), g.today) < 1 ? 'today' : `${daysBetween(localDate(s.joinedAt), g.today)} days ago`} · {members.length} {members.length === 1 ? 'garden' : 'gardens'}
+        </p>
+        {view.sample && (
+          <p className="info-panel" style={{ marginTop: 16 }}>
+            Sample neighbours. Until the street service is connected, this street lives only in this browser, and the other gardens are examples.
           </p>
-          {view.sample && (
-            <p className="info-panel" style={{ marginTop: 16, fontSize: 14 }}>
-              Sample neighbours. Until the street service is connected, this street lives only in this browser, and the other gardens are examples.
-            </p>
-          )}
-          <div className="street-ring" style={{ marginTop: 20 }} role="group" aria-label={`${view.name}: ${members.length} gardens around a cul-de-sac`}>
-            <svg viewBox="0 0 100 100" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }} aria-hidden="true">
-              <rect width="100" height="100" fill="#8bbf5e" />
-              <rect x="44" y="60" width="12" height="40" fill="#c9c6bf" />
-              <circle cx="50" cy="47" r="17" fill="#c9c6bf" />
-              <circle cx="50" cy="47" r="6" fill="#7aae52" />
-              <path d="M50 64 V100" stroke="#fff" strokeWidth=".5" strokeDasharray="2 2" />
-              {trails.map((t, i) => {
-                const a = pos[t.from], b = pos[t.to];
-                const mx = (a.x + b.x) / 2 + (50 - (a.x + b.x) / 2) * 0.35, my = (a.y + b.y) / 2 + (47 - (a.y + b.y) / 2) * 0.35;
-                return <path key={i} d={`M${a.x},${a.y} Q${mx},${my} ${b.x},${b.y}`} stroke="#fff" strokeWidth=".6" fill="none" strokeDasharray="1 1.4" opacity=".9" />;
-              })}
-            </svg>
-            {lots.map((m, i) => {
-              const mine = m.memberId === s.memberId;
-              const label = mine ? `Your garden, ${tier(mess(fromStreetLevels(m.levels))).toLowerCase()}${m.visible ? '' : ', hidden from the street'}` : `${m.gardenName}’s garden, ${tier(mess(fromStreetLevels(m.levels))).toLowerCase()}`;
-              return (
-                <div key={m.memberId} className="lot" style={{ left: `${pos[i].x}%`, top: `${pos[i].y}%`, width: `${size}%` }}>
-                  <div className={'g' + (mine ? ' me' : '')} role="img" aria-label={label} style={{ opacity: m.visible ? 1 : 0.5 }} dangerouslySetInnerHTML={{ __html: svgs[i] }} />
-                  <span className="nm">{mine ? 'You' : m.gardenName}</span>
-                </div>
-              );
+        )}
+      </div>
+      <section className="band obsidian street-stage">
+        <div className="street-ring" role="group" aria-label={`${view.name}: ${members.length} gardens around a cul-de-sac`}>
+          <svg viewBox="0 0 100 100" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }} aria-hidden="true">
+            <rect x="44" y="60" width="12" height="40" fill="#1a1a1a" />
+            <circle cx="50" cy="47" r="17" fill="#1a1a1a" />
+            <circle cx="50" cy="47" r="6" fill="#24cb71" />
+            <path d="M50 64 V100" stroke="#fff" strokeWidth=".4" strokeDasharray="2 2" />
+            {trails.map((t, i) => {
+              const a = pos[t.from], b = pos[t.to];
+              const mx = (a.x + b.x) / 2 + (50 - (a.x + b.x) / 2) * 0.35, my = (a.y + b.y) / 2 + (47 - (a.y + b.y) / 2) * 0.35;
+              return <path key={i} d={`M${a.x},${a.y} Q${mx},${my} ${b.x},${b.y}`} stroke="#b8b3ff" strokeWidth=".6" fill="none" strokeDasharray="1 1.4" />;
             })}
-            {lots.length < MAX && (
-              <div className="lot empty" style={{ left: `${ringPos(lots.length, slots).x}%`, top: `${ringPos(lots.length, slots).y}%`, width: `${size}%` }}>
-                <button type="button" className="g" style={{ aspectRatio: '1', width: '100%', cursor: 'pointer', font: 'inherit', color: '#fff', fontWeight: 600, fontSize: 12 }} onClick={onCopy} aria-label="Empty lot. Invite someone: copies the invite link">
-                  + Invite someone
-                </button>
-                <span className="nm">Empty lot</span>
+          </svg>
+          {lots.map((m, i) => {
+            const mine = m.memberId === s.memberId;
+            const label = mine ? `Your garden, ${tier(mess(fromStreetLevels(m.levels))).toLowerCase()}${m.visible ? '' : ', hidden from the street'}` : `${m.gardenName}’s garden, ${tier(mess(fromStreetLevels(m.levels))).toLowerCase()}`;
+            return (
+              <div key={m.memberId} className="lot" style={{ left: `${pos[i].x}%`, top: `${pos[i].y}%`, width: `${size}%` }}>
+                <div className={'g' + (mine ? ' me' : '')} role="img" aria-label={label} style={{ opacity: m.visible ? 1 : 0.5 }} dangerouslySetInnerHTML={{ __html: svgs[i] }} />
+                <span className="nm">{mine ? 'You' : m.gardenName}</span>
               </div>
-            )}
+            );
+          })}
+          {lots.length < MAX && (
+            <div className="lot empty" style={{ left: `${ringPos(lots.length, slots).x}%`, top: `${ringPos(lots.length, slots).y}%`, width: `${size}%` }}>
+              <button type="button" className="g" style={{ aspectRatio: '1', width: '100%', cursor: 'pointer', font: 'inherit', color: '#fff', fontWeight: 600, fontSize: 12, background: 'transparent' }} onClick={onCopy} aria-label="Empty lot. Invite someone: copies the invite link">
+                + Invite
+              </button>
+              <span className="nm">Empty lot</span>
+            </div>
+          )}
+        </div>
+      </section>
+      <div className="page">
+        <h2>Neighbours</h2>
+        <p className="muted" style={{ marginTop: 4 }}>
+          In the order they joined. Pictures only, never numbers.
+        </p>
+        <ul className="ngrid" style={{ listStyle: 'none', padding: 0, marginTop: 20 }}>
+          {neighbours.map((m, idx) => {
+            const waved = view.wavesToday.includes(m.memberId);
+            const i = lots.indexOf(m);
+            return (
+              <li key={m.memberId} className="ncard">
+                <div className={'tilebox ' + ['t-mint', 't-lavender', 't-yellow', 't-emerald', 't-orange'][idx % 5]}>
+                  <div aria-hidden="true" dangerouslySetInnerHTML={{ __html: svgs[i] }} />
+                </div>
+                <b>{m.gardenName}</b>
+                <p>{tier(mess(fromStreetLevels(m.levels)))}</p>
+                <p className="muted">{checkedText(m.lastCheckIn, g.today)}</p>
+                <button type="button" className="btn outline small" disabled={waved} onClick={() => onWave(m.memberId, m.gardenName)} aria-label={waved ? `You waved at ${m.gardenName} today` : `Wave at ${m.gardenName}`}>
+                  {waved ? 'Waved' : 'Wave'}
+                </button>
+              </li>
+            );
+          })}
+          {lots.length < MAX && (
+            <li className="ncard empty">
+              <div className="tilebox">
+                <button type="button" onClick={onCopy}>
+                  Invite someone
+                </button>
+              </div>
+              <b>Empty lot</b>
+              <p className="muted">Copies the invite link</p>
+            </li>
+          )}
+        </ul>
+        {neighbours.length === 0 && (
+          <div style={{ display: 'flex', gap: 16, alignItems: 'center', padding: '16px 0' }}>
+            <Companion size={60} />
+            <p className="muted">No neighbours yet. Share the invite link in your group chat.</p>
           </div>
-        </section>
-        <aside className="stack-24">
+        )}
+        <div className="grid-2" style={{ marginTop: 48 }}>
           <div>
-            <h2 style={{ fontSize: 22 }}>This week on the street</h2>
+            <h2>This week on the street</h2>
             <div className="stack-8" style={{ marginTop: 12 }} aria-live="polite">
               {myWaves.map((w, i) => (
                 <div key={'w' + i}>
@@ -366,52 +406,28 @@ function Street({ view, s, invite, onCopy, onWave, onHide }: { view: SV; s: Stre
             </div>
           </div>
           <div>
-            <h2 style={{ fontSize: 22 }}>Neighbours</h2>
-            <div style={{ marginTop: 8 }}>
-              {lots
-                .filter((m) => m.memberId !== s.memberId)
-                .map((m, idx) => {
-                  const waved = view.wavesToday.includes(m.memberId);
-                  const i = lots.indexOf(m);
-                  return (
-                    <div key={m.memberId} className="nrow">
-                      <div className="mini" aria-hidden="true" dangerouslySetInnerHTML={{ __html: svgs[i] }} />
-                      <div>
-                        <b style={{ color: 'var(--ink)' }}>{m.gardenName}</b>
-                        <p className="caption">
-                          {tier(mess(fromStreetLevels(m.levels)))} · {checkedText(m.lastCheckIn, g.today)}
-                        </p>
-                      </div>
-                      <button type="button" className="btn small secondary" disabled={waved} onClick={() => onWave(m.memberId, m.gardenName)} aria-label={waved ? `You waved at ${m.gardenName} today` : `Wave at ${m.gardenName}`} data-i={idx}>
-                        {waved ? 'Waved' : 'Wave'}
-                      </button>
-                    </div>
-                  );
-                })}
-              {lots.length <= 1 && (
-                <div style={{ display: 'flex', gap: 16, alignItems: 'center', padding: '12px 0' }}>
-                  <Companion size={60} />
-                  <p className="muted">No neighbours yet. Share the invite link in your group chat.</p>
+            <div className="list">
+              <div className="srow">
+                <div>
+                  <b id="hide-lbl">Hide my garden from the street</b>
+                  <span>{s.visible ? 'Neighbours can see your garden picture.' : 'Neighbours can’t see your garden right now.'}</span>
                 </div>
-              )}
+                <Switch checked={!s.visible} onChange={onHide} label="Hide my garden from the street" />
+              </div>
+              <div className="srow">
+                <div>
+                  <b>Invite link</b>
+                  <span className="mono" style={{ wordBreak: 'break-all', fontSize: 14 }}>
+                    {invite}
+                  </span>
+                </div>
+                <button type="button" className="btn outline small" onClick={onCopy}>
+                  Copy link
+                </button>
+              </div>
             </div>
           </div>
-          <div className="btnrow">
-            <button type="button" className="btn ghost" onClick={onCopy}>
-              Invite more
-            </button>
-          </div>
-          <div className="srow" style={{ borderTop: '1px solid var(--rule)' }}>
-            <div>
-              <b id="hide-lbl">Hide my garden from the street</b>
-              <span>{s.visible ? 'Neighbours can see your garden picture.' : 'Neighbours can’t see your garden right now.'}</span>
-            </div>
-            <Switch checked={!s.visible} onChange={onHide} label="Hide my garden from the street" />
-          </div>
-          <p className="caption">
-            Invite link: <span style={{ wordBreak: 'break-all' }}>{invite}</span>
-          </p>
-        </aside>
+        </div>
       </div>
     </main>
   );
@@ -465,7 +481,7 @@ export function JoinStreet() {
           <Link to={`/cul-de-sac/${g.street.slug}`} className="btn">
             Go to {g.street.name}
           </Link>
-          <Link to="/settings" className="btn ghost">
+          <Link to="/settings" className="btn outline">
             Settings
           </Link>
         </div>
@@ -504,7 +520,7 @@ export function JoinStreet() {
             <button type="button" className="btn" onClick={join} disabled={busy}>
               Join {streetName}
             </button>
-            <Link to="/garden" className="btn ghost">
+            <Link to="/garden" className="btn outline">
               Not now
             </Link>
           </div>

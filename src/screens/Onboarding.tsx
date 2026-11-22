@@ -7,7 +7,7 @@ import type { Levels, MetricKey, Profile, RawDay, Reminder } from '../engine/typ
 import { KEYS } from '../engine/types';
 import { Garden } from '../garden/Garden';
 import { appUrl, download, local, reminderICS } from '../lib/files';
-import { Bubble, PropIcon, SliderField, usePageTitle, useToast } from '../ui/common';
+import { Bubble, MetricTile, SliderField, usePageTitle, useToast } from '../ui/common';
 
 export interface Draft {
   dataMode: Profile['dataMode'];
@@ -35,28 +35,29 @@ function useDraft(): [Draft, (p: Partial<Draft>) => void] {
   return [d, update];
 }
 
-function Step({ n, title, lede, children, back, next, nextLabel = 'Continue', busy }: { n: number; title: string; lede: string; children: ReactNode; back: () => void; next: () => void; nextLabel?: string; busy?: boolean }) {
+function Step({ n, title, lede, children, back, next, nextLabel = 'Continue', busy, backLabel = 'Back' }: { n: number; title: string; lede: string; children: ReactNode; back: () => void; next: () => void; nextLabel?: string; busy?: boolean; backLabel?: string }) {
   usePageTitle(title);
   return (
     <>
+      <div className="progress" role="img" aria-label={`Step ${n} of 4`}>
+        {[1, 2, 3, 4].map((i) => (
+          <i key={i} className={i <= n ? 'on' : ''} />
+        ))}
+      </div>
       <main className="page onb-page">
-        <div className="progress" aria-hidden="true">
-          {[1, 2, 3, 4].map((i) => (
-            <i key={i} className={i <= n ? 'on' : ''} />
-          ))}
-        </div>
-        <p className="step">Step {n} of 4</p>
         <h1>{title}</h1>
         <p className="lede">{lede}</p>
-        <div style={{ marginTop: 36 }}>{children}</div>
+        <div style={{ marginTop: 40 }}>{children}</div>
       </main>
       <div className="onb-foot">
-        <button type="button" className="btn ghost" onClick={back}>
-          Back
-        </button>
-        <button type="button" className="btn" onClick={next} disabled={busy}>
-          {nextLabel}
-        </button>
+        <div>
+          <button type="button" className="btn outline" onClick={back}>
+            {backLabel}
+          </button>
+          <button type="button" className="btn" onClick={next} disabled={busy}>
+            {nextLabel}
+          </button>
+        </div>
       </div>
     </>
   );
@@ -71,7 +72,7 @@ export function HowItWorks() {
     ['Every weed has a receipt', 'Click anything in the garden to see the number behind it, how it’s worked out and how to tidy it.'],
   ];
   return (
-    <Step n={1} title="Here’s how your garden grows." lede="Three things to know before you plant. It takes about four minutes to set up." back={() => nav('/tracker')} next={() => nav('/start/data')}>
+    <Step n={1} title="Here’s how your garden grows." lede="Three things to know before you plant. It takes about four minutes to set up." back={() => nav('/')} next={() => nav('/start/data')}>
       <div className="split">
         <ol className="stack-24" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
           {points.map(([t, b], i) => (
@@ -100,10 +101,12 @@ export function HowItWorks() {
           <ul className="how-list">
             {KEYS.map((k) => (
               <li key={k}>
-                <PropIcon k={k} size={22} />
+                <MetricTile k={k} size={32} />
                 <span>
                   <b>{META[k].name}</b>
-                  <span className="caption">{META[k].prop}</span>
+                  <span className="muted" style={{ display: 'block' }}>
+                    {META[k].prop}
+                  </span>
                 </span>
               </li>
             ))}
@@ -145,7 +148,7 @@ export function ChooseData() {
             <h2>Quick check-in</h2>
             <span className="badge">Recommended</span>
           </div>
-          <p className="caption" style={{ margin: '8px 0 0 32px' }}>
+          <p className="mono muted" style={{ margin: '8px 0 0 32px', fontSize: 14 }}>
             About 2 minutes each evening
           </p>
           <p style={{ margin: '8px 0 0 32px' }}>Move six sliders using Screen Time and a glance at your chats. Best for a daily habit.</p>
@@ -163,7 +166,7 @@ export function ChooseData() {
             <span className="radiodot" />
             <h2>Bring your exports</h2>
           </div>
-          <p className="caption" style={{ margin: '8px 0 0 32px' }}>
+          <p className="mono muted" style={{ margin: '8px 0 0 32px', fontSize: 14 }}>
             One-off, about 10 minutes
           </p>
           <p style={{ margin: '8px 0 0 32px' }}>Drop in a WhatsApp chat and your TikTok or Instagram history. More accurate, less often.</p>
@@ -175,7 +178,7 @@ export function ChooseData() {
         </label>
       </fieldset>
       <div className="ok-panel" style={{ marginTop: 24 }}>
-        <div className="ok-title">Your numbers stay on this device.</div>
+        <div className="ok-title">Your numbers never leave this device; streets share pictures only, never numbers.</div>
         <p style={{ marginTop: 4 }}>Check-ins and files are read and stored in your browser, never uploaded. Delete it all any time in Settings.</p>
       </div>
     </Step>
@@ -196,9 +199,9 @@ const at = (v: number): Levels => ({ thumb: v, headline: v, forwards: v, potato:
 
 export function NormalExplainer() {
   return (
-    <aside className="panel stack-16">
+    <aside className="panel stack-16" style={{ background: 'var(--mint)', borderColor: 'var(--mint)' }}>
       <h2>How your normal is used</h2>
-      <p className="muted">Each measure is scored against your normal. At your normal, a patch looks lived-in. At twice your normal, it’s as messy as it gets.</p>
+      <p>Each measure is scored against your normal. At your normal, a patch looks lived-in. At twice your normal, it’s as messy as it gets.</p>
       <div className="grid-3" style={{ gap: 10 }}>
         {[
           ['Below normal', 0.15],
@@ -207,13 +210,13 @@ export function NormalExplainer() {
         ].map(([t, v]) => (
           <figure key={t as string} style={{ margin: 0 }}>
             <Garden levels={at(v as number)} name={t as string} animate={false} label={`${t}: example garden`} />
-            <figcaption className="caption" style={{ textAlign: 'center', marginTop: 6 }}>
+            <figcaption style={{ textAlign: 'center', marginTop: 8, fontWeight: 600 }}>
               {t}
             </figcaption>
           </figure>
         ))}
       </div>
-      <p className="caption">Nothing is compared with other people, and there is no score to win.</p>
+      <p>Nothing is compared with other people, and there is no score to win.</p>
     </aside>
   );
 }
@@ -254,7 +257,7 @@ export function SetNormal() {
           {NORMAL_FIELDS.map((f) => (
             <SliderField
               key={f.key}
-              icon={<PropIcon k={f.metric} size={26} />}
+              icon={<MetricTile k={f.metric} size={40} />}
               label={f.label}
               hint={f.hint}
               value={normal[f.key]}
@@ -335,7 +338,7 @@ export function NameGarden() {
                 {error}
               </p>
             )}
-            <p className="caption" id="name-hint" style={{ marginTop: 6 }}>
+            <p className="muted" id="name-hint" style={{ marginTop: 6 }}>
               Shows on your letterbox and, if you join one, your cul-de-sac.
             </p>
           </div>
@@ -378,10 +381,12 @@ export function NameGarden() {
             </fieldset>
           )}
         </div>
-        <aside className="panel stack-16">
+        <aside className="panel stack-16" style={{ background: 'var(--mint)', borderColor: 'var(--mint)' }}>
           {time && d.reminder.calendarAdded && (
             <div className="card" style={{ padding: 14 }}>
-              <p className="caption">Calendar event, daily at {timeText}</p>
+              <p className="caption">
+                Calendar event, daily at <span className="mono">{timeText}</span>
+              </p>
               <p style={{ fontWeight: 600, marginTop: 4 }}>Your garden is waiting. Two minutes to check in?</p>
             </div>
           )}
@@ -389,7 +394,7 @@ export function NameGarden() {
             <Garden levels={at(0.5)} name={name || 'Your garden'} animate={false} />
             <span className="nameplate">{name || 'Your garden'}</span>
           </div>
-          <p className="muted">Your garden starts lived-in and changes as you check in. A week of check-ins shows the real pattern.</p>
+          <p>Your garden starts lived-in and changes as you check in. A week of check-ins shows the real pattern.</p>
         </aside>
       </div>
     </Step>
