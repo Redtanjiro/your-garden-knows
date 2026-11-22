@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useGarden } from '../data/store';
 import { addDays, daysBetween, dayMonth, parseISODate, prettyDate } from '../engine/dates';
 import { levelsAt, mess, tier } from '../engine/metrics';
+import { KEYS, type MetricKey } from '../engine/types';
 import { reportStories, weekStart } from '../engine/stories';
 import type { Levels } from '../engine/types';
 import { Garden } from '../garden/Garden';
@@ -17,7 +18,7 @@ async function gardenCard(levels: Levels, name: string): Promise<Blob> {
   c.width = W;
   c.height = H;
   const x = c.getContext('2d')!;
-  x.fillStyle = '#f6f5f4';
+  x.fillStyle = '#c7f8fb';
   x.fillRect(0, 0, W, H);
   const svg = gardenSVG(levels, 7, 'width="1200" height="1200"');
   const url = URL.createObjectURL(new Blob([svg], { type: 'image/svg+xml' }));
@@ -28,26 +29,20 @@ async function gardenCard(levels: Levels, name: string): Promise<Blob> {
       img.onerror = () => rej(new Error('The garden picture could not be drawn. Try again.'));
       img.src = url;
     });
-    x.save();
-    x.beginPath();
-    x.roundRect(60, 60, 960, 960, 28);
-    x.clip();
     x.drawImage(img, 60, 60, 960, 960);
-    x.restore();
   } finally {
     URL.revokeObjectURL(url);
   }
   try {
-    await document.fonts.load('700 56px Inter');
+    await document.fonts.load('400 64px "Inter Tight"');
   } catch {
     /* fall back to system font */
   }
-  x.fillStyle = '#0d0d0d';
-  x.font = '700 56px Inter, -apple-system, Helvetica, Arial, sans-serif';
-  x.fillText(name, 60, 1110);
-  x.fillStyle = '#757575';
-  x.font = '400 30px Inter, -apple-system, Helvetica, Arial, sans-serif';
-  x.fillText('Your Garden Knows', 60, 1165);
+  x.fillStyle = '#0f0f0f';
+  x.font = '400 64px "Inter Tight", Inter, -apple-system, Helvetica, Arial, sans-serif';
+  x.fillText(name, 60, 1115);
+  x.font = '400 30px "Inter Tight", Inter, -apple-system, Helvetica, Arial, sans-serif';
+  x.fillText('Your Garden Knows', 60, 1170);
   return new Promise((res, rej) => c.toBlob((b) => (b ? res(b) : rej(new Error('The garden card could not be made. Try again.'))), 'image/png'));
 }
 
@@ -64,23 +59,32 @@ export function Report() {
   const before = useMemo(() => levelsAt(g.days, g.normal, from), [g.days, g.normal, from]);
   const stories = useMemo(() => (ready ? reportStories(g.days, g.normal, from, to) : []), [ready, g.days, g.normal, from, to]);
   const name = g.profile!.gardenName;
+  // Which metric each story is about, so its card takes that metric's colour (the engine's own ordering).
+  const storyMetric = useMemo(() => {
+    const b = g.levels;
+    const d = KEYS.map((k) => ({ k, d: levelsAt(g.days, g.normal, to)[k] - before[k] })).sort((x, y) => y.d - x.d);
+    void b;
+    return { grower: d[0].k, tidy: d[d.length - 1].k, silly: 'thumb' as MetricKey };
+  }, [g.days, g.normal, to, before, g.levels]);
 
   if (!ready) {
     const arrives = addDays(g.today, 7 - g.dataDays.length);
     return (
-      <main className="page narrow" style={{ textAlign: 'center', paddingTop: 80 }}>
-        <div style={{ display: 'grid', placeItems: 'center' }} aria-hidden="true">
+      <main className="page narrow" style={{ paddingTop: 64 }}>
+        <div aria-hidden="true">
           <Companion size={110} />
         </div>
-        <h1 style={{ marginTop: 20 }}>Your first report arrives on {prettyDate(arrives)}.</h1>
-        <p className="lede" style={{ margin: '12px auto 0' }}>
-          A report needs seven days in the garden. You have {g.dataDays.length} so far{g.dataDays.length ? ', so keep checking in' : ''}.
+        <h1 style={{ marginTop: 24 }}>
+          Your first report arrives on <span className="mono">{prettyDate(arrives)}</span>.
+        </h1>
+        <p className="lede">
+          A report needs seven days in the garden. You have <span className="mono">{g.dataDays.length}</span> so far{g.dataDays.length ? ', so keep checking in' : ''}.
         </p>
-        <div className="btnrow" style={{ justifyContent: 'center', marginTop: 24 }}>
+        <div className="btnrow" style={{ marginTop: 28 }}>
           <Link to="/check-in" className="btn">
             Check in
           </Link>
-          <Link to="/garden" className="btn ghost">
+          <Link to="/garden" className="btn outline">
             Back to my garden
           </Link>
         </div>
@@ -108,51 +112,58 @@ export function Report() {
   const fromDate = parseISODate(from);
   const rangeText = `${fromDate.toLocaleDateString('en-AU', { weekday: 'short', day: 'numeric' })} to ${parseISODate(to).toLocaleDateString('en-AU', { weekday: 'short' })} ${dayMonth(to)}`;
   return (
-    <main className="page">
-      <h1>Your week in the garden.</h1>
-      <p className="lede">
-        {rangeText} · {checkins} of {range} check-ins
-      </p>
-      <div className="grid-2" style={{ marginTop: 32, maxWidth: 880 }}>
-        {(
-          [
-            ['Last Sunday', before],
-            ['Today', g.levels],
-          ] as const
-        ).map(([label, l]) => (
-          <figure key={label} style={{ margin: 0 }}>
-            <Garden levels={l} name={`${name}, ${label.toLowerCase()}`} animate={false} />
-            <figcaption style={{ marginTop: 10, display: 'flex', gap: 10, alignItems: 'center' }}>
-              <b style={{ color: 'var(--ink)' }}>{label}</b>
-              <span className={'tier ' + tier(mess(l))} style={{ height: 26, fontSize: 13 }}>
-                {tier(mess(l))}
-              </span>
-            </figcaption>
-          </figure>
-        ))}
+    <main>
+      <section className="band obsidian report-head">
+        <div className="wrap" style={{ paddingTop: 56, paddingBottom: 48 }}>
+          <h1 className="display-l">Your week</h1>
+          <p className="mono" style={{ marginTop: 20, color: '#e9e9e9' }}>
+            {rangeText} · {checkins} of {range} check-ins
+          </p>
+        </div>
+      </section>
+      <div className="page" style={{ paddingTop: 40, paddingBottom: 0 }}>
+        <div className="grid-2" style={{ maxWidth: 880 }}>
+          {(
+            [
+              ['Last Sunday', before],
+              ['Today', g.levels],
+            ] as const
+          ).map(([label, l]) => (
+            <figure key={label} className="pair-fig">
+              <Garden levels={l} name={`${name}, ${label.toLowerCase()}`} animate={false} />
+              <figcaption>
+                <b>{label}</b>
+                <span className="tier">{tier(mess(l))}</span>
+              </figcaption>
+            </figure>
+          ))}
+        </div>
       </div>
-      <div className="grid-3" style={{ marginTop: 32 }}>
-        {stories.map((s, i) => (
-          <article key={s.kind} className={'rcard ' + ['red', 'blue', 'yellow'][i]}>
-            <p className="ey">{s.eyebrow}</p>
-            <h2 className="ti" style={{ color: '#fff' }}>
-              {s.title}
-            </h2>
-            <p className="bo">{s.body}</p>
-          </article>
-        ))}
+      <section className="rstories" style={{ marginTop: 48 }} aria-label="Three stories from your week">
+        {stories.map((s) => {
+          const k = storyMetric[s.kind as 'grower' | 'tidy' | 'silly'] ?? 'thumb';
+          return (
+            <article key={s.kind} className={`rcard mt-${k}`}>
+              <h2 className="ti">{s.title}</h2>
+              <p className="bo">{s.body}</p>
+              <p className="ey">{s.eyebrow}</p>
+            </article>
+          );
+        })}
+      </section>
+      <div className="page" style={{ paddingTop: 40 }}>
+        <div className="btnrow">
+          <button type="button" className="btn" onClick={share} disabled={busy}>
+            Share my garden card
+          </button>
+          <Link to="/tidy-up" className="btn outline">
+            Plan next week
+          </Link>
+        </div>
+        <p className="muted" style={{ marginTop: 12 }}>
+          The garden card shows the picture only. No numbers, apps or messages are ever included.
+        </p>
       </div>
-      <div className="btnrow" style={{ marginTop: 32 }}>
-        <Link to="/tidy-up" className="btn ghost">
-          Plan next week
-        </Link>
-        <button type="button" className="btn" onClick={share} disabled={busy}>
-          Share my garden card
-        </button>
-      </div>
-      <p className="caption" style={{ marginTop: 12 }}>
-        The garden card shows the picture only. No numbers, apps or messages are ever included.
-      </p>
     </main>
   );
 }

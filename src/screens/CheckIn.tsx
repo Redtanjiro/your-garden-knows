@@ -7,7 +7,7 @@ import { changeList, latestRaw } from '../engine/stories';
 import type { RawDay } from '../engine/types';
 import { KEYS } from '../engine/types';
 import { Garden } from '../garden/Garden';
-import { PropIcon, SliderField, usePageTitle, useToast } from '../ui/common';
+import { MetricTile, SliderField, usePageTitle, useToast } from '../ui/common';
 import { NORMAL_FIELDS } from './Onboarding';
 
 const CHECKIN_LABELS: Partial<Record<keyof RawDay, [string, string]>> = {
@@ -74,7 +74,7 @@ export function CheckInScreen() {
             <label className="sr-only" htmlFor="ci-date">
               Day to check in
             </label>
-            <select id="ci-date" className="chip datechip" value={date} onChange={(e) => pickDate(e.target.value)}>
+            <select id="ci-date" className="input datechip" style={{ width: 'auto' }} value={date} onChange={(e) => pickDate(e.target.value)}>
               {dateOptions.map((d, i) => (
                 <option key={d} value={d}>
                   {i === 0 ? `Today, ${prettyDate(d)}` : i === 1 ? `Yesterday, ${prettyDate(d)}` : prettyDate(d)}
@@ -82,15 +82,15 @@ export function CheckInScreen() {
                 </option>
               ))}
             </select>
-            <span className="caption">{editing ? 'Editing a saved day.' : 'Missed a day? Pick it here.'}</span>
+            <span className="muted">{editing ? 'Editing a saved day.' : 'Missed a day? Pick it here.'}</span>
           </div>
-          <div style={{ marginTop: 16 }}>
+          <div style={{ marginTop: 24 }}>
             {NORMAL_FIELDS.map((f) => {
               const [label, hint] = CHECKIN_LABELS[f.key] ?? [f.label, f.hint];
               return (
                 <SliderField
                   key={f.key}
-                  icon={<PropIcon k={f.metric} size={26} />}
+                  icon={<MetricTile k={f.metric} size={40} />}
                   label={label}
                   hint={hint}
                   value={raw[f.key]}
@@ -108,20 +108,21 @@ export function CheckInScreen() {
             <button type="button" className="btn" onClick={save} disabled={busy}>
               {date === g.today ? 'Save today' : `Save ${prettyDate(date)}`}
             </button>
-            <button type="button" className="btn ghost" onClick={() => nav('/garden')}>
+            <button type="button" className="btn outline" onClick={() => nav('/garden')}>
               Cancel
             </button>
           </div>
-          <p className="caption" style={{ marginTop: 16 }}>
+          <p className="muted" style={{ marginTop: 16 }}>
             Saved check-ins stay on this device. Your normal: Settings → Your normal.
           </p>
         </section>
-        <aside className="panel preview-panel" aria-label="Live preview">
+        <aside className="preview-panel" aria-label="Live preview">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
             <h2>Live preview</h2>
             <span className="badge muted">Not saved yet</span>
           </div>
           <Garden levels={preview} name={g.profile!.gardenName} label={`Preview of ${g.profile!.gardenName} if you save these numbers`} />
+          <h3 style={{ marginTop: 20 }}>What would change</h3>
           <ul className="changes" aria-live="polite">
             {changes.map((c) => (
               <li key={c.text} className={c.tone}>

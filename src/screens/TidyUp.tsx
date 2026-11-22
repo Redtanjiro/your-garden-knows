@@ -5,7 +5,7 @@ import { CHALLENGES, challengeMeta } from '../engine/meta';
 import { projectChallenge, propCountFor } from '../engine/stories';
 import type { ChallengeType } from '../engine/types';
 import { Garden } from '../garden/Garden';
-import { PropIcon, usePageTitle, useToast } from '../ui/common';
+import { MetricTile, usePageTitle, useToast } from '../ui/common';
 
 export function TidyUp() {
   usePageTitle('Tidy up');
@@ -35,7 +35,7 @@ export function TidyUp() {
     if (!active) return;
     try {
       const r = await g.actions.logChallenge(active.id);
-      toast(r === 'done' ? 'Challenge done. Nice patch.' : 'Logged. See you tomorrow.');
+      toast(r === 'done' ? 'Challenge done. Nice patch.' : 'Logged. See you tomorrow.', false, r === 'done');
     } catch (e) {
       toast((e as Error).message, true);
     }
@@ -58,14 +58,18 @@ export function TidyUp() {
       <h1>Tidy up, one patch at a time.</h1>
       <p className="lede">Pick a small challenge. Each one clears one thing in your garden. One at a time.</p>
 
-      <section className="paper" style={{ marginTop: 32, padding: 28 }} aria-labelledby="ch-title">
-        <div className="split" style={{ gap: 32 }}>
+      <section className={`challenge`} style={{ marginTop: 32 }} aria-labelledby="ch-title">
+        <span className={`bar-l mt-${cm.metric}`} aria-hidden="true" />
+        <div className="in split" style={{ gap: 40 }}>
           <div>
-            <span className={'badge' + (active ? '' : ' muted')}>{active ? 'In progress' : 'Suggested'}</span>
-            <h2 id="ch-title" style={{ fontSize: 26, marginTop: 10 }}>
+            <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
+              <MetricTile k={cm.metric} size={56} />
+              <span className={'badge' + (active ? '' : ' muted')}>{active ? 'In progress' : 'Suggested'}</span>
+            </div>
+            <h2 id="ch-title" className="heading-s" style={{ marginTop: 20 }}>
               {cm.title}
             </h2>
-            <p style={{ marginTop: 8 }}>{cm.body}</p>
+            <p style={{ marginTop: 10 }}>{cm.body}</p>
             {active ? (
               <>
                 <ol className="ticks" aria-label="Days">
@@ -90,68 +94,73 @@ export function TidyUp() {
                       <button type="button" className="btn danger small" onClick={stop}>
                         Stop challenge
                       </button>
-                      <button type="button" className="btn ghost small" onClick={() => setConfirmStop(false)}>
+                      <button type="button" className="btn outline small" onClick={() => setConfirmStop(false)}>
                         Keep going
                       </button>
                     </span>
                   ) : (
-                    <button type="button" className="btn ghost" onClick={() => setConfirmStop(true)}>
+                    <button type="button" className="btn danger" onClick={() => setConfirmStop(true)}>
                       Stop challenge
                     </button>
                   )}
                 </div>
               </>
             ) : (
-              <div className="btnrow" style={{ marginTop: 20 }}>
+              <div className="btnrow" style={{ marginTop: 24 }}>
                 <button type="button" className="btn" onClick={() => start(focus)}>
                   Start a tidy-up
                 </button>
-                <span className="caption">{cm.short}</span>
+                <span className="mono muted">{cm.short}</span>
               </div>
             )}
-            <p className="caption" style={{ marginTop: 16, display: 'flex', gap: 8, alignItems: 'center' }}>
-              <PropIcon k={cm.metric} size={20} /> {cm.clears}
+            <p className="muted" style={{ marginTop: 16 }}>
+              {cm.clears}
             </p>
           </div>
           <div>
-            <div className="grid-2" style={{ gap: 14 }}>
-              <figure style={{ margin: 0 }}>
+            <div className="grid-2" style={{ gap: 12 }}>
+              <figure className="pair-fig">
                 <Garden levels={proj.now} name="Now" animate={false} label="Your garden now" />
-                <figcaption className="caption" style={{ marginTop: 6, textAlign: 'center' }}>
-                  Now
+                <figcaption>
+                  <b>Now</b>
                 </figcaption>
               </figure>
-              <figure style={{ margin: 0 }}>
+              <figure className="pair-fig">
                 <Garden
                   levels={proj.after}
                   name="Projection"
                   animate={false}
                   label={`Projection, not your real garden: how it could look after ${cm.days} days of this challenge, if everything else stays the same`}
                 />
-                <figcaption className="caption" style={{ marginTop: 6, textAlign: 'center' }}>
-                  After {cm.days} days <span className="badge muted">projection</span>
+                <figcaption>
+                  <b>
+                    After <span className="mono">{cm.days}</span> days
+                  </b>
+                  <span className="badge muted">Projection</span>
                 </figcaption>
               </figure>
             </div>
-            <p style={{ marginTop: 12, textAlign: 'center', fontWeight: 600, color: 'var(--ink)' }}>
+            <p className="mono" style={{ marginTop: 14, textAlign: 'center' }}>
               {before} → {after} {cm.propNoun}
             </p>
-            <p className="caption" style={{ textAlign: 'center' }}>
+            <p className="muted" style={{ textAlign: 'center', marginTop: 4 }}>
               A projection only. Your garden changes from your check-ins, not from the challenge.
             </p>
           </div>
         </div>
       </section>
 
-      <h2 style={{ marginTop: 40, fontSize: 22 }}>{active ? 'More challenges' : 'Other challenges'}</h2>
+      <h2 style={{ marginTop: 48 }}>{active ? 'More challenges' : 'Other challenges'}</h2>
       <div className="grid-2" style={{ marginTop: 16, gap: 12 }}>
         {others.map((c) => (
-          <div key={c.type} className="card" style={{ display: 'grid', gridTemplateColumns: '36px 1fr auto', gap: 14, alignItems: 'center' }}>
-            <PropIcon k={c.metric} />
+          <div key={c.type} className="ccard">
+            <MetricTile k={c.metric} size={64} />
             <div>
-              <b style={{ color: 'var(--ink)' }}>{c.title}</b>
-              <p className="caption">{c.short}</p>
-              <p style={{ fontSize: 14 }}>{c.clears}</p>
+              <b>{c.title}</b>
+              <p className="mono muted" style={{ fontSize: 14, marginTop: 2 }}>
+                {c.short}
+              </p>
+              <p style={{ marginTop: 4 }}>{c.clears}</p>
             </div>
             <div style={{ textAlign: 'right' }}>
               {active ? (
@@ -164,7 +173,7 @@ export function TidyUp() {
                   </p>
                 </>
               ) : (
-                <button type="button" className="btn small secondary" onClick={() => setPicked(c.type)} aria-label={`Preview ${c.title}`}>
+                <button type="button" className="btn small outline" onClick={() => setPicked(c.type)} aria-label={`Preview ${c.title}`}>
                   Preview
                 </button>
               )}
@@ -173,7 +182,7 @@ export function TidyUp() {
         ))}
       </div>
       {done.length > 0 && (
-        <p className="caption" style={{ marginTop: 24 }}>
+        <p className="muted" style={{ marginTop: 24 }}>
           Finished so far: {done.map((d) => challengeMeta(d.type).title).join(', ')}.
         </p>
       )}
